@@ -53,4 +53,28 @@ class Trade:
         # stage 2: retrieve actual listing of items
         r2 = requests.get(f'https://www.pathofexile.com/api/trade/fetch/{",".join(stage1["result"][0:10])}', params={ "query": stage1["id"] })
         stage2 = json.loads(r2.text)
-        print(stage2)
+
+        item_name = False
+        # stores prices in the format [[amount, currency, count]]
+        prices = []
+        for item in stage2["result"]:
+            if not item_name:
+                item_name = item["item"]["name"]
+            
+            listing_price = item["listing"]["price"]
+            if len(prices) and prices[-1][0] == listing_price["amount"] and prices[-1][1] == listing_price["currency"]:
+                prices[-1][2] += 1
+            else:
+                prices.append([listing_price["amount"], listing_price["currency"], 1])
+        
+        str_prices = []
+
+        for a in prices:
+            if a[2] > 1:
+                str_prices.append(f'{a[0]} {a[1]} ({a[2]})')
+            else:
+                str_prices.append(f'{a[0]} {a[1]}')
+
+        return {
+            "result": f'{item_name}: {", ".join(prices)}'
+        }
