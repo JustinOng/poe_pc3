@@ -4,27 +4,12 @@ import shlex
 import re
 import time
 import traceback
-import win32gui
-import win32api
-import win32con
+import subprocess
 from pathofexiletrade import Trade
 
 def display(text):
-    g_hwnd = win32gui.FindWindow(None, "Path of Exile")
     print(text)
-
-    if not g_hwnd:
-        print("Cannot locate window with \"Path of Exile\"!")
-        return
-    
-    win32api.PostMessage(g_hwnd, win32con.WM_KEYDOWN, win32con.VK_RETURN, 0)
-
-    time.sleep(0.1)
-    
-    for c in text:
-        win32api.PostMessage(g_hwnd, win32con.WM_CHAR, ord(c), 0)
-    
-    win32api.PostMessage(g_hwnd, win32con.WM_KEYUP, win32con.VK_RETURN, 0)
+    subprocess.run(["write.exe", text])
 
 config = configparser.ConfigParser()
 config.read("config.ini")
