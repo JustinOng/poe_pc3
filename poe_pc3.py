@@ -17,11 +17,12 @@ config.read("config.ini")
 market = Trade()
 
 pc_parser = argparse.ArgumentParser(usage=argparse.SUPPRESS)
+pc_parser.add_argument("--name", nargs="?", const=None)
 pc_parser.add_argument("--base", nargs="?", const=None)
 pc_parser.add_argument("--corrupted", help="'any', 'yes', or 'no'", nargs="?", const="yes")
 pc_parser.add_argument("--quality", nargs="?", const=None)
 pc_parser.add_argument("--links", nargs="?", const=None)
-pc_parser.add_argument("name", nargs="?", default="", help="name of item")
+pc_parser.add_argument("term", nargs="?", default="", help="name of item")
 
 line_regex = re.compile(r"\[INFO Client [0-9]+\] (.*?): (.*)")
 range_regex = re.compile(r"(\d*)\-(\d*)")
@@ -67,7 +68,7 @@ while True:
 
         # join unmatched parameters so that we can issue commands like "&pc searing touch"
         if unknown:
-            options["name"] = options["name"] + " " + " ".join(unknown)
+            options["term"] = options["term"] + " " + " ".join(unknown)
         
         #validate yes/no/any options
         ARGUMENTS_YES_NO_ANY = ["corrupted"]
@@ -77,7 +78,11 @@ while True:
                 display("&Unknown parameter for --"+argument+": "+options[argument])
                 continue
         
-        result = market.query("Delve", { "name": options["name"] })
+        result = market.query("Delve", {
+            "name": options["name"],
+            "base": options["base"],
+            "term": options["term"],
+        })
 
         if "error" in result:
             display(f'&Error: {result["error"]["message"]}')
