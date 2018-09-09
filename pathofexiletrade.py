@@ -54,9 +54,20 @@ class Trade:
         if "error" in stage1:
             return stage1
         
+        if len(stage1["result"]) == 0:
+            print(stage1)
+            return {
+                "error": {
+                    "message": "No items found."
+                }
+            }
+        
         # stage 2: retrieve actual listing of items
         r2 = requests.get(f'https://www.pathofexile.com/api/trade/fetch/{",".join(stage1["result"][0:10])}', params={ "query": stage1["id"] })
         stage2 = json.loads(r2.text)
+
+        if "error" in stage2:
+            return stage2
 
         item_name = False
         # stores prices in the format [[amount, currency, count]]
